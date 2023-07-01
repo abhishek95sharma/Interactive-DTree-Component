@@ -22,6 +22,12 @@ def my_component(name, key=None):
 
 if not _RELEASE:
     import streamlit as st
+    import json
+
+    with open("tree_data.json") as f:
+        data = json.load(f)
+
+    st.write(data)
 
     st.subheader("Component with constant args")
 
