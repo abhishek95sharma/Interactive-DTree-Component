@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react"
-import { TreeDataContext } from "./TreeDataContext"
+import { ArgsContext } from "./ArgsContext"
 import { Streamlit } from "streamlit-component-lib"
 
 import NodeContent from "./NodeContent"
@@ -24,17 +24,17 @@ export interface NodeId {
 }
 
 const Node = ({ id }: NodeId) => {
-  const args = useContext(TreeDataContext)
+  const args = useContext(ArgsContext)
   const data: NodeObject[] = args.data
   const [childrenVisible, setChildrenVisible] = useState(true)
 
-  useEffect(() => Streamlit.setFrameHeight(), [childrenVisible])
+  // useEffect(() => Streamlit.setFrameHeight(), [])
 
   const node_data = data.find((a) => a.node_id === id)
 
   const hasChildren = node_data!.left != null && node_data!.right != null
 
-  console.log("id ", id, node_data, hasChildren)
+  // console.log("id ", id, node_data, hasChildren)
 
   function switchChildrenVisible() {
     setChildrenVisible(!childrenVisible)
@@ -53,12 +53,12 @@ const Node = ({ id }: NodeId) => {
       {hasChildren && childrenVisible && (
         <ul>
           <li>
-            <EdgeContent id={id} isLeft={true} />
-            <Node id={node_data!.left.id} />
+            <EdgeContent id={id} isLeft={true} key={id} />
+            <Node id={node_data!.left.id} key={node_data!.left.id} />
           </li>
           <li>
-            <EdgeContent id={id} isLeft={false} />
-            <Node id={node_data!.right.id} />
+            <EdgeContent id={id} isLeft={false} key={id} />
+            <Node id={node_data!.right.id} key={node_data!.right.id} />
           </li>
         </ul>
       )}

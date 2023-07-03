@@ -34,6 +34,10 @@ $child-button-size: 10px;
 $child-button-color: rgba(128, 0, 0, 0.25);
 $child-button-hover-color: rgba(128, 0, 0, 1);
 
+.hidden {
+  // opacity: 0.5;
+}
+
 // Body
 body {
   height: auto;
@@ -71,34 +75,54 @@ body {
   padding: 0;
 }
 
+button {
+  display: block;
+  margin: 5px auto;
+  padding: 5px;
+}
+
 .tree {
+  // background-color: aqua;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  flex-direction: row;
+
   -webkit-box-pack: start;
   -ms-flex-pack: start;
   justify-content: flex-start;
-  overflow-y: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 10px;
+
+  transition: all $transition-time;
+  -webkit-transition: all $transition-time;
+  -moz-transition: all $transition-time;
+  -ms-transition: all $transition-time;
+  -o-transition: all $transition-time;
 }
 
 .tree ul {
   padding-left: $edge-length-before-split;
   position: relative;
 
-  transition: all $transition-time;
-  -webkit-transition: all $transition-time;
-  -moz-transition: all $transition-time;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  flex-direction: column;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
-  flex-direction: column;
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
+
+  max-height: 1000px;
+  // max-width: 5000px;
+
+  transition: all $transition-time;
+  -webkit-transition: all $transition-time;
+  -moz-transition: all $transition-time;
   -ms-transition: all $transition-time;
   -o-transition: all $transition-time;
 }
@@ -181,7 +205,6 @@ right connector from last child*/
   -ms-flex-item-align: center;
   -ms-grid-row-align: center;
   align-self: center;
-  width: $node-width;
   border-radius: $node-border-radius;
   -webkit-border-radius: $node-border-radius;
   -moz-border-radius: $node-border-radius;
@@ -218,6 +241,7 @@ right connector from last child*/
   align-self: stretch;
   align-items: center;
   justify-content: center;
+  width: $node-width;
   padding: $node-inner-padding;
   border-radius: 0px $node-border-radius $node-border-radius 0px;
   -webkit-border-radius: 0px $node-border-radius $node-border-radius 0px;

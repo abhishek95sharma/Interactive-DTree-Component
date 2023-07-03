@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { TreeDataContext } from "./TreeDataContext"
+import { ArgsContext } from "./ArgsContext"
 import type { NodeObject } from "./Node"
 
 interface EdgeType {
@@ -8,7 +8,7 @@ interface EdgeType {
 }
 
 const EdgeContent = ({ id, isLeft }: EdgeType) => {
-  const args = useContext(TreeDataContext)
+  const args = useContext(ArgsContext)
   const data: NodeObject[] = args.data
   const node_data = data.find((a) => a.node_id === id)
 
