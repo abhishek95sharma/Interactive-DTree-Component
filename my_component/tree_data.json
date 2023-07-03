@@ -1,172 +1,151 @@
 [
     {
         "node_id": 0,
-        "feature": "petal width (cm)",
-        "threshold": 0.800000011920929,
-        "impurity": 0.6666666666666667,
-        "n_node_samples": 150,
-        "left": 1,
-        "right": 2,
-        "value": null
+        "left": {
+            "id": 1,
+            "condition": "abc"
+        },
+        "right": {
+            "id": 2,
+            "condition": "abc"
+        },
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 1,
-        "feature": null,
-        "threshold": null,
-        "impurity": 0.0,
-        "n_node_samples": 50,
-        "left": -1,
-        "right": -1,
-        "value": [[50.0, 0.0, 0.0]]
+        "left": {
+            "id": 3,
+            "condition": "abc"
+        },
+        "right": {
+            "id": 4,
+            "condition": "abc"
+        },
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 2,
-        "feature": "petal width (cm)",
-        "threshold": 1.75,
-        "impurity": 0.5,
-        "n_node_samples": 100,
-        "left": 3,
-        "right": 12,
-        "value": null
+        "left": {
+            "id": 5,
+            "condition": "abc"
+        },
+        "right": {
+            "id": 6,
+            "condition": "abc"
+        },
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 3,
-        "feature": "petal length (cm)",
-        "threshold": 4.950000047683716,
-        "impurity": 0.16803840877914955,
-        "n_node_samples": 54,
-        "left": 4,
-        "right": 7,
-        "value": null
-    },
-    {
-        "node_id": 4,
-        "feature": "petal width (cm)",
-        "threshold": 1.6500000357627869,
-        "impurity": 0.04079861111111116,
-        "n_node_samples": 48,
-        "left": 5,
-        "right": 6,
-        "value": null
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 5,
-        "feature": null,
-        "threshold": null,
-        "impurity": 0.0,
-        "n_node_samples": 47,
-        "left": -1,
-        "right": -1,
-        "value": [[0.0, 47.0, 0.0]]
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 6,
-        "feature": null,
-        "threshold": null,
-        "impurity": 0.0,
-        "n_node_samples": 1,
-        "left": -1,
-        "right": -1,
-        "value": [[0.0, 0.0, 1.0]]
+        "left": {
+            "id": 7,
+            "condition": "abc"
+        },
+        "right": {
+            "id": 8,
+            "condition": "abc"
+        },
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
+    },
+    {
+        "node_id": 4,
+        "left": {
+            "id": 9,
+            "condition": "abc"
+        },
+        "right": {
+            "id": 10,
+            "condition": "abc"
+        },
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 7,
-        "feature": "petal width (cm)",
-        "threshold": 1.550000011920929,
-        "impurity": 0.4444444444444444,
-        "n_node_samples": 6,
-        "left": 8,
-        "right": 9,
-        "value": null
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 8,
-        "feature": null,
-        "threshold": null,
-        "impurity": 0.0,
-        "n_node_samples": 3,
-        "left": -1,
-        "right": -1,
-        "value": [[0.0, 0.0, 3.0]]
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 9,
-        "feature": "petal length (cm)",
-        "threshold": 5.450000047683716,
-        "impurity": 0.4444444444444444,
-        "n_node_samples": 3,
-        "left": 10,
-        "right": 11,
-        "value": null
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 10,
-        "feature": null,
-        "threshold": null,
-        "impurity": 0.0,
-        "n_node_samples": 2,
-        "left": -1,
-        "right": -1,
-        "value": [[0.0, 2.0, 0.0]]
+        "left": {
+            "id": 11,
+            "condition": "abc"
+        },
+        "right": {
+            "id": 12,
+            "condition": "abc"
+        },
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 11,
-        "feature": null,
-        "threshold": null,
-        "impurity": 0.0,
-        "n_node_samples": 1,
-        "left": -1,
-        "right": -1,
-        "value": [[0.0, 0.0, 1.0]]
+        "left": {
+            "id": 13,
+            "condition": "abc"
+        },
+        "right": {
+            "id": 14,
+            "condition": "abc"
+        },
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 12,
-        "feature": "petal length (cm)",
-        "threshold": 4.8500001430511475,
-        "impurity": 0.042533081285444196,
-        "n_node_samples": 46,
-        "left": 13,
-        "right": 16,
-        "value": null
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 13,
-        "feature": "sepal width (cm)",
-        "threshold": 3.100000023841858,
-        "impurity": 0.4444444444444444,
-        "n_node_samples": 3,
-        "left": 14,
-        "right": 15,
-        "value": null
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 14,
-        "feature": null,
-        "threshold": null,
-        "impurity": 0.0,
-        "n_node_samples": 2,
-        "left": -1,
-        "right": -1,
-        "value": [[0.0, 0.0, 2.0]]
+        "left": {
+            "id": 15,
+            "condition": "abc"
+        },
+        "right": {
+            "id": 16,
+            "condition": "abc"
+        },
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 15,
-        "feature": null,
-        "threshold": null,
-        "impurity": 0.0,
-        "n_node_samples": 1,
-        "left": -1,
-        "right": -1,
-        "value": [[0.0, 1.0, 0.0]]
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     },
     {
         "node_id": 16,
-        "feature": null,
-        "threshold": null,
-        "impurity": 0.0,
-        "n_node_samples": 43,
-        "left": -1,
-        "right": -1,
-        "value": [[0.0, 0.0, 43.0]]
+        "contents": ["a", "sdg", "dg"],
+        "color": "#00ff00"
     }
 ]

@@ -14,8 +14,10 @@ else:
     _component_func = components.declare_component("my_component", path=build_dir)
 
 
-def my_component(name, key=None):
-    component_value = _component_func(name=name, key=key, default=0)
+def my_component(data, key=None, show_node_ids=True):
+    component_value = _component_func(
+        data=data, key=key, default=0, show_node_ids=show_node_ids
+    )
 
     return component_value
 
@@ -24,19 +26,17 @@ if not _RELEASE:
     import streamlit as st
     import json
 
+    st.set_page_config(layout="wide")
+
     with open("tree_data.json") as f:
         data = json.load(f)
 
-    st.write(data)
+    # st.write(data)
+    st.markdown("---")
 
-    st.subheader("Component with constant args")
-
-    num_clicks = my_component("World")
-    st.markdown("You've clicked %s times!" % int(num_clicks))
+    name = "Decision Tree"
+    node_id = my_component(data, key="dct", show_node_ids=True)
 
     st.markdown("---")
-    st.subheader("Component with variable args")
 
-    name_input = st.text_input("Enter a name", value="Streamlit")
-    num_clicks = my_component(name_input, key="foo")
-    st.markdown("You've clicked %s times!" % int(num_clicks))
+    st.write(node_id)

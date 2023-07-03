@@ -13,6 +13,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-scripts": "4.0.3",
+    "sass": "^1.63.6",
     "streamlit-component-lib-react-hooks": "^1.1.0"
   },
   "devDependencies": {
