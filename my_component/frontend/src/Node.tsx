@@ -1,6 +1,5 @@
-import { useState, useContext, useEffect } from "react"
+import { useState, useContext } from "react"
 import { ArgsContext } from "./ArgsContext"
-import { Streamlit } from "streamlit-component-lib"
 
 import NodeContent from "./NodeContent"
 import EdgeContent from "./EdgeContent"
@@ -17,6 +16,7 @@ export interface NodeObject {
   }
   contents: string[]
   color: string
+  childrenVisible: boolean
 }
 
 export interface NodeId {
@@ -26,11 +26,12 @@ export interface NodeId {
 const Node = ({ id }: NodeId) => {
   const args = useContext(ArgsContext)
   const data: NodeObject[] = args.data
-  const [childrenVisible, setChildrenVisible] = useState(true)
-
-  // useEffect(() => Streamlit.setFrameHeight(), [])
-
   const node_data = data.find((a) => a.node_id === id)
+  const [childrenVisible, setChildrenVisible] = useState(
+    node_data!.childrenVisible != null ? node_data!.childrenVisible : true
+  )
+
+  node_data!.childrenVisible = childrenVisible
 
   const hasChildren = node_data!.left != null && node_data!.right != null
 
