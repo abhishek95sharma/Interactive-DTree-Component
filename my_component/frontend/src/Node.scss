@@ -5,7 +5,8 @@
 
 $font-family: arial, tahoma;
 
-$transition-time: 0.5s;
+$transition: all 0.5s ease;
+$max-height: 2400px;
 
 $edge-length-before-split: 10px;
 $edge-length-after-split: 150px;
@@ -31,7 +32,7 @@ $edge-label-margin-y: 2px;
 
 $child-button-margin: 0px 0px 0px 3px;
 $child-button-size: 10px;
-$child-button-color: rgba(128, 0, 0, 0.25);
+$child-button-color: rgb(185, 145, 145);
 $child-button-hover-color: rgba(128, 0, 0, 1);
 
 // Body
@@ -78,33 +79,30 @@ button {
 }
 
 .tree {
-  // background-color: aqua;
+  //background-color: aqua;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   flex-direction: row;
-
   -webkit-box-pack: start;
   -ms-flex-pack: start;
   justify-content: flex-start;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 10px;
-
-  transition: all $transition-time;
-  -webkit-transition: all $transition-time;
-  -moz-transition: all $transition-time;
-  -ms-transition: all $transition-time;
-  -o-transition: all $transition-time;
+  transition: $transition;
+  -webkit-transition: $transition;
+  -moz-transition: $transition;
+  -ms-transition: $transition;
+  -o-transition: $transition;
 }
 
 .tree ul {
+  display: flex;
   padding-left: $edge-length-before-split;
   position: relative;
-
   display: -webkit-box;
   display: -ms-flexbox;
-  display: flex;
   flex-direction: column;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
@@ -112,15 +110,13 @@ button {
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
+  max-height: $max-height;
 
-  max-height: 1000px;
-  // max-width: 5000px;
-
-  transition: all $transition-time;
-  -webkit-transition: all $transition-time;
-  -moz-transition: all $transition-time;
-  -ms-transition: all $transition-time;
-  -o-transition: all $transition-time;
+  transition: $transition;
+  -webkit-transition: $transition;
+  -moz-transition: $transition;
+  -ms-transition: $transition;
+  -o-transition: $transition;
 }
 
 .tree li {
@@ -131,11 +127,11 @@ button {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  transition: all $transition-time;
-  -webkit-transition: all $transition-time;
-  -moz-transition: all $transition-time;
-  -ms-transition: all $transition-time;
-  -o-transition: all $transition-time;
+  transition: $transition;
+  -webkit-transition: $transition;
+  -moz-transition: $transition;
+  -ms-transition: $transition;
+  -o-transition: $transition;
 }
 
 /*We will use ::before and ::after to draw the connectors*/
@@ -206,11 +202,11 @@ right connector from last child*/
   -moz-border-radius: $node-border-radius;
   -ms-border-radius: $node-border-radius;
   -o-border-radius: $node-border-radius;
-  transition: all $transition-time;
-  -webkit-transition: all $transition-time;
-  -moz-transition: all $transition-time;
-  -ms-transition: all $transition-time;
-  -o-transition: all $transition-time;
+  transition: $transition;
+  -webkit-transition: $transition;
+  -moz-transition: $transition;
+  -ms-transition: $transition;
+  -o-transition: $transition;
 }
 
 .tree li .node .node-content-left {
@@ -222,6 +218,7 @@ right connector from last child*/
   align-self: stretch;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
   border-right: $node-border-style;
   border-radius: $node-border-radius 0px 0px $node-border-radius;
   -webkit-border-radius: $node-border-radius 0px 0px $node-border-radius;
@@ -258,22 +255,19 @@ right connector from last child*/
 // Edge Label
 .tree li .edge-content {
   margin: $edge-label-margin-y $edge-label-margin-x;
-
   text-decoration: none;
   color: $node-text-color;
   font-family: $font-family;
   font-size: $node-font-size;
-
   position: absolute;
   left: 0;
   bottom: 50%;
   width: $edge-length-after-split - 2 * $edge-label-margin-x;
-
-  transition: all $transition-time;
-  -webkit-transition: all $transition-time;
-  -moz-transition: all $transition-time;
-  -ms-transition: all $transition-time;
-  -o-transition: all $transition-time;
+  transition: $transition;
+  -webkit-transition: $transition;
+  -moz-transition: $transition;
+  -ms-transition: $transition;
+  -o-transition: $transition;
 }
 
 //Child button
@@ -282,15 +276,12 @@ right connector from last child*/
   -ms-flex-item-align: center;
   -ms-grid-row-align: center;
   align-self: center;
-
-  transition: all $transition-time;
-  -webkit-transition: all $transition-time;
-  -moz-transition: all $transition-time;
-  -ms-transition: all $transition-time;
-  -o-transition: all $transition-time;
-
+  transition: $transition;
+  -webkit-transition: $transition;
+  -moz-transition: $transition;
+  -ms-transition: $transition;
+  -o-transition: $transition;
   margin: $child-button-margin;
-
   border-top: $child-button-size solid transparent;
   border-bottom: $child-button-size solid transparent;
   border-left: $child-button-size solid $child-button-color;

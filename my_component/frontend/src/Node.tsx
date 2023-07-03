@@ -34,6 +34,9 @@ const Node = ({ id }: NodeId) => {
   node_data!.childrenVisible = childrenVisible
 
   const hasChildren = node_data!.left != null && node_data!.right != null
+  const childrenVisibleStyle = childrenVisible
+    ? {}
+    : { opacity: 0, maxHeight: 0, maxWidth: 0, overflowX: "hidden" }
 
   // console.log("id ", id, node_data, hasChildren)
 
@@ -51,8 +54,8 @@ const Node = ({ id }: NodeId) => {
         ></div>
       )}
 
-      {hasChildren && childrenVisible && (
-        <ul>
+      {hasChildren && (
+        <ul style={childrenVisibleStyle}>
           <li>
             <EdgeContent id={id} isLeft={true} key={id} />
             <Node id={node_data!.left.id} key={node_data!.left.id} />
