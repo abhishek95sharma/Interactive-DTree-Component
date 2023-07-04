@@ -51,6 +51,7 @@ $font-family: var(--font-family);
 
 $transition: all var(--transition-time) ease;
 $max-height: var(--max-height);
+$padding-quantum: var(--padding-quantum);
 
 $edge-length-before: var(--edge-length-before);
 $edge-length: var(--edge-size);
@@ -124,16 +125,18 @@ button {
 }
 
 .tree {
-  //background-color: aqua;
+  // background-color: aqua;
   display: -webkit-box;
   display: -ms-flexbox;
-  display: inline-flex;
+  display: inline-block;
   flex-direction: row;
   -webkit-box-pack: start;
   -ms-flex-pack: start;
   justify-content: flex-start;
   overflow-x: auto;
   overflow-y: hidden;
+  min-width: 0px;
+  max-width: 100%;
   padding: 10px;
   transition: $transition;
   -webkit-transition: $transition;
@@ -143,8 +146,9 @@ button {
 }
 
 .tree ul {
-  display: flex;
+  display: inline-flex;
   padding-left: $edge-length-before;
+  padding-right: $padding-quantum;
   position: relative;
   display: -webkit-box;
   display: -ms-flexbox;

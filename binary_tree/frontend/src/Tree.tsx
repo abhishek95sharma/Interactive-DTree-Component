@@ -44,6 +44,7 @@ const Tree = (props: ComponentProps) => {
 
   const treeToPng = async () => {
     const element = document.querySelector(".tree")!
+    console.log(element.scrollWidth, element.clientWidth)
     const useWidth = element.scrollWidth
     const canvas = await html2canvas(document.querySelector(".tree")!, {
       width: useWidth,

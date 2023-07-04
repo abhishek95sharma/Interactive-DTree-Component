@@ -28,7 +28,9 @@ const Node = ({ id }: NodeId) => {
   const data: NodeObject[] = args.data
   const node_data = data.find((a) => a.node_id === id)
   const [childrenVisible, setChildrenVisible] = useState(
-    node_data!.childrenVisible != null ? node_data!.childrenVisible : true
+    node_data!.childrenVisible != null
+      ? node_data!.childrenVisible
+      : args.expanded
   )
 
   node_data!.childrenVisible = childrenVisible
@@ -36,7 +38,12 @@ const Node = ({ id }: NodeId) => {
   const hasChildren = node_data!.left != null && node_data!.right != null
   const childrenVisibleStyle = childrenVisible
     ? {}
-    : { opacity: 0, maxHeight: 0, maxWidth: 0, overflowX: "hidden" }
+    : ({
+        opacity: 0,
+        maxHeight: 0,
+        maxWidth: 0,
+        overflowX: "hidden",
+      } as React.CSSProperties)
 
   // console.log("id ", id, node_data, hasChildren)
 
