@@ -3,37 +3,79 @@
 /* See also right to left at https://codepen.io/paulsmirnov/pen/WNNGVbv */
 /* See also vertical + fixed wrapping at https://codepen.io/paulsmirnov/pen/LYYZeGM */
 
-$font-family: arial, tahoma;
+#root {
+  --font-family: arial;
+  --font-size: 0.7em;
+  --max-height: 2400px;
+  --edge-size: 150px;
+  --node-size: 100px;
+  --padding-quantum: 5px;
+  --edge-color: #ccc;
+  --edge-hover-color: #94a0b4;
+  --node-hover-color: #c8e4f8;
+  --node-border-color: #ccc;
+  --text-color: #333;
+  --text-hover-color: #333;
+  --button-color: rgb(185, 145, 145);
+  --button-hover-color: rgb(150, 0, 0);
 
-$transition: all 0.5s ease;
-$max-height: 2400px;
+  --edge-length-before: calc(2 * var(--padding-quantum));
+  --edge-style: 1px solid var(--edge-color);
 
-$edge-length-before-split: 10px;
-$edge-length-after-split: 150px;
-$edge-style: 1px solid #ccc;
+  --node-outer-padding: var(--padding-quantum) 0 var(--padding-quantum)
+    var(--edge-size);
+  --node-border-style: 1px solid var(--node-border-color);
+  --node-border-radius: var(--padding-quantum);
+  --node-inner-padding: var(--padding-quantum) var(--padding-quantum);
+  --node-left-item-width: calc(4 * var(--padding-quantum));
+  --node-text-color: var(--text-color);
+  --node-font-size: var(--font-size);
+  --node-width: var(--node-size);
 
-$edge-hover-color: #94a0b4;
+  --node-hover-color: var(--node-hover-color);
+  --node-hover-text-color: #var(--text-hover-color);
+  --node-hover-border-style: 1px solid var(--edge-hover-color);
 
-$node-outer-padding: 5px 0 5px $edge-length-after-split;
-$node-border-style: 1px solid #ccc;
-$node-border-radius: 5px;
-$node-inner-padding: 5px 5px;
-$node-left-item-width: 20px;
-$node-text-color: #333;
-$node-font-size: 11px;
-$node-width: 100px;
+  --edge-label-margin-x: calc(2 * var(--padding-quantum));
+  --edge-label-margin-y: 2px;
 
-$node-hover-color: #c8e4f8;
-$node-hover-text-color: #000;
-$node-hover-border-style: 1px solid $edge-hover-color;
+  --child-button-margin: 0px 0px 0px 3px;
+  --child-button-size: calc(2 * var(--padding-quantum));
+  --child-button-color: var(--button-color);
+  --child-button-hover-color: var(--button-hover-color);
+}
 
-$edge-label-margin-x: 10px;
-$edge-label-margin-y: 2px;
+$font-family: var(--font-family);
 
-$child-button-margin: 0px 0px 0px 3px;
-$child-button-size: 10px;
-$child-button-color: rgb(185, 145, 145);
-$child-button-hover-color: rgba(128, 0, 0, 1);
+$transition: all 0.75s ease;
+$max-height: var(--max-height);
+
+$edge-length-before: var(--edge-length-before);
+$edge-length: var(--edge-size);
+$edge-style: var(--edge-style);
+
+$edge-hover-color: var(--edge-hover-color);
+
+$node-outer-padding: var(--node-outer-padding);
+$node-border-style: var(--node-border-style);
+$node-border-radius: var(--node-border-radius);
+$node-inner-padding: var(--node-inner-padding);
+$node-left-item-width: var(--node-left-item-width);
+$node-text-color: var(--node-text-color);
+$node-font-size: var(--node-font-size);
+$node-width: var(--node-width);
+
+$node-hover-color: var(--node-hover-color);
+$node-hover-text-color: var(--node-hover-text-color);
+$node-hover-border-style: var(--node-hover-border-style);
+
+$edge-label-margin-x: var(--edge-label-margin-x);
+$edge-label-margin-y: var(--edge-label-margin-y);
+
+$child-button-margin: var(--child-button-margin);
+$child-button-size: var(--child-button-size);
+$child-button-color: var(--child-button-color);
+$child-button-hover-color: var(--child-button-hover-color);
 
 // Body
 body {
@@ -82,7 +124,7 @@ button {
   //background-color: aqua;
   display: -webkit-box;
   display: -ms-flexbox;
-  display: flex;
+  display: inline-flex;
   flex-direction: row;
   -webkit-box-pack: start;
   -ms-flex-pack: start;
@@ -99,7 +141,7 @@ button {
 
 .tree ul {
   display: flex;
-  padding-left: $edge-length-before-split;
+  padding-left: $edge-length-before;
   position: relative;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -111,6 +153,7 @@ button {
   -ms-flex-pack: center;
   justify-content: center;
   max-height: $max-height;
+  max-width: $max-height;
 
   transition: $transition;
   -webkit-transition: $transition;
@@ -143,7 +186,7 @@ button {
   left: 0;
   bottom: 50%;
   border-left: $edge-style;
-  width: $edge-length-after-split;
+  width: $edge-length;
   height: 50%;
 }
 .tree li::after {
@@ -182,7 +225,7 @@ right connector from last child*/
   left: 0;
   top: 50%;
   border-top: $edge-style;
-  width: $edge-length-before-split;
+  width: $edge-length-before;
   height: 0;
 }
 
@@ -262,7 +305,7 @@ right connector from last child*/
   position: absolute;
   left: 0;
   bottom: 50%;
-  width: $edge-length-after-split - 2 * $edge-label-margin-x;
+  width: calc($edge-length - 2 * $edge-label-margin-x);
   transition: $transition;
   -webkit-transition: $transition;
   -moz-transition: $transition;

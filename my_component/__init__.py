@@ -15,8 +15,24 @@ else:
 
 
 def my_component(data, key=None, show_node_ids=True):
+    style = {
+        "font_family": "arial",
+        "font_size": "0.7em",
+        "max_height": "2400px",
+        "edge_size": "150px",
+        "node_size": "100px",
+        "padding_quantum": "5px",
+        "edge_color": "#ccc",
+        "edge_hover_color": "#94a0b4",
+        "node_hover_color": "#c8e4f8",
+        "node_border_color": "#ccc",
+        "text_color": "#333",
+        "text_hover_color": "#333",
+        "button_color": "rgb(185, 145, 145)",
+        "button_hover_color": "rgb(150, 0, 0)",
+    }
     component_value = _component_func(
-        data=data, key=key, default=0, show_node_ids=show_node_ids
+        data=data, key=key, default=0, show_node_ids=show_node_ids, style=style
     )
 
     return component_value

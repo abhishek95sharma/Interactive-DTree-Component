@@ -4,6 +4,7 @@ import {
   withStreamlitConnection,
 } from "streamlit-component-lib"
 import React, { useEffect, useState, useRef } from "react"
+import ReactDOM from "react-dom"
 
 import downloadjs from "downloadjs"
 import html2canvas from "html2canvas"
@@ -11,11 +12,22 @@ import { ArgsContext } from "./ArgsContext"
 import Node from "./Node"
 import "./Node.scss"
 
+const setStyle = (style: object) => {
+  Object.entries(style).forEach(([key, value]) => {
+    key = `--${key.replaceAll("_", "-")}`
+    console.log(key, value)
+    document.getElementById("root")!.style.setProperty(key, value)
+  })
+}
+
 const Tree = (props: ComponentProps) => {
   const args = props.args
   const key = args.key
   const [lastFrameHeight, setLastFrameHeight] = useState(0)
   const treeRef: any = useRef(null)
+
+  console.log(args.style)
+  setStyle(args.style)
 
   useEffect(() => {
     const intervalId = setInterval(() => {
