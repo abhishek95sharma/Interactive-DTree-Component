@@ -1,7 +1,7 @@
 import os
 import streamlit.components.v1 as components
 
-_RELEASE = True
+_RELEASE = False
 
 if not _RELEASE:
     _component_func = components.declare_component(
@@ -49,6 +49,7 @@ def binary_tree(data, key=None, expanded=True, show_node_ids=True, style=default
 if not _RELEASE:
     import streamlit as st
     import json
+    import binary_tree as binary_tree_built
 
     st.set_page_config(layout="wide")
 
@@ -61,6 +62,10 @@ if not _RELEASE:
     name = "Decision Tree"
     node_id = binary_tree(data, key="dct", show_node_ids=True)
 
+    st.write(node_id)
     st.markdown("---")
 
+    node_id = binary_tree_built.binary_tree(data, key="dct2", show_node_ids=True)
+
     st.write(node_id)
+    st.markdown("---")
