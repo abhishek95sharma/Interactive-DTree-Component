@@ -1,12 +1,12 @@
 import setuptools
 
 setuptools.setup(
-    name="streamlit-custom-component",
-    version="0.0.1",
-    author="",
-    author_email="",
-    description="",
-    long_description="",
+    name="streamlit-binary-tree",
+    version="0.1.0",
+    author="Abhishek Sharma",
+    author_email="abhishek1995sharma@gmail.com",
+    description="Interactive Binary Tree as a Streamlit component",
+    long_description="Interactive Binary Tree as a Streamlit component",
     long_description_content_type="text/plain",
     url="",
     packages=setuptools.find_packages(),

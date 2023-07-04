@@ -1,1 +1,1 @@
-recursive-include package/frontend/build *
+recursive-include binary_tree/frontend/build *
