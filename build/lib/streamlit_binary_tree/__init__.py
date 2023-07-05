@@ -5,13 +5,15 @@ _RELEASE = False
 
 if not _RELEASE:
     _component_func = components.declare_component(
-        "binary_tree",
+        "streamlit_binary_tree",
         url="http://localhost:3001",
     )
 else:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     build_dir = os.path.join(parent_dir, "frontend/build")
-    _component_func = components.declare_component("binary_tree", path=build_dir)
+    _component_func = components.declare_component(
+        "streamlit_binary_tree", path=build_dir
+    )
 
 default_style = {
     "font_family": "arial",
@@ -49,7 +51,7 @@ def binary_tree(data, key=None, expanded=True, show_node_ids=True, style=default
 if not _RELEASE:
     import streamlit as st
     import json
-    import binary_tree as binary_tree_built
+    import streamlit_binary_tree
 
     st.set_page_config(layout="wide")
 
@@ -65,7 +67,7 @@ if not _RELEASE:
     st.write(node_id)
     st.markdown("---")
 
-    node_id = binary_tree_built.binary_tree(data, key="dct2", show_node_ids=True)
+    node_id = streamlit_binary_tree.binary_tree(data, key="dct2", show_node_ids=True)
 
     st.write(node_id)
     st.markdown("---")

@@ -1,1 +1,1 @@
-binary_tree
+streamlit_binary_tree

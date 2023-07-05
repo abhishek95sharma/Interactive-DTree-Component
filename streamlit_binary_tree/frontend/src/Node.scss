@@ -35,7 +35,7 @@
   --node-width: var(--node-size);
 
   --node-hover-color: var(--node-hover-color);
-  --node-hover-text-color: #var(--text-hover-color);
+  --node-hover-text-color: var(--text-hover-color);
   --node-hover-border-style: 1px solid var(--edge-hover-color);
 
   --edge-label-margin-x: calc(2 * var(--padding-quantum));
@@ -260,6 +260,12 @@ right connector from last child*/
   -o-transition: $transition;
 }
 
+.tree li .node:hover {
+  background: $node-hover-color;
+  color: $node-hover-text-color;
+  border: $node-hover-border-style;
+}
+
 .tree li .node .node-content-left {
   cursor: pointer;
   width: $node-left-item-width;
@@ -295,12 +301,6 @@ right connector from last child*/
 }
 .tree li .node .node-content-right-item {
   padding: 0;
-}
-
-.tree li .node:hover {
-  background: $node-hover-color;
-  color: $node-hover-text-color;
-  border: $node-hover-border-style;
 }
 
 // Edge Label
