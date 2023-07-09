@@ -58,6 +58,7 @@ const Node = ({ id }: NodeId) => {
         <div
           className="child-button"
           onClick={(e) => switchChildrenVisible()}
+          style={childrenVisible ? {} : { transform: "scaleX(-1)" }}
         ></div>
       )}
 

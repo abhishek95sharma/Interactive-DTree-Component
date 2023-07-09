@@ -20,6 +20,7 @@
   --button-color: rgb(185, 145, 145);
   --button-hover-color: rgb(150, 0, 0);
   --transition-time: 0.75s;
+  --shadow-color: #999;
 
   --edge-length-before: calc(2 * var(--padding-quantum));
   --edge-style: 1px solid var(--edge-color);
@@ -80,6 +81,8 @@ $child-button-margin: var(--child-button-margin);
 $child-button-size: var(--child-button-size);
 $child-button-color: var(--child-button-color);
 $child-button-hover-color: var(--child-button-hover-color);
+
+$shadow-color: var(--shadow-color);
 
 // Body
 body {
@@ -258,6 +261,7 @@ right connector from last child*/
   -moz-transition: $transition;
   -ms-transition: $transition;
   -o-transition: $transition;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
 }
 
 .tree li .node:hover {
