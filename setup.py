@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="streamlit-binary-tree",
-    version="0.1.3",
+    version="0.2.0",
     author="Abhishek Sharma",
     author_email="abhishek1995sharma@gmail.com",
     description="Interactive Binary Tree as a Streamlit component",
@@ -19,5 +19,6 @@ setuptools.setup(
         # them here.
         "streamlit >= 0.63",
         "scikit-learn >= 1.3.0",
+        "numpy",
     ],
 )

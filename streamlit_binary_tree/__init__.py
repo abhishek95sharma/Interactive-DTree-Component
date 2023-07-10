@@ -1,13 +1,14 @@
 import os
-import streamlit.components.v1 as components
-from typing import List
-from sklearn.tree import _tree
-from sklearn.tree._classes import DecisionTreeClassifier as DCTClass
 import math
 import numpy as np
+from typing import List
+import streamlit as st
+import streamlit.components.v1 as components
+from sklearn.tree import _tree
+from sklearn.tree._classes import DecisionTreeClassifier as DCTClass
 
 _RELEASE = True
-_DEBUG = False
+_DEBUG = True
 _NAME = "streamlit_binary_tree"
 
 if _RELEASE:
@@ -63,11 +64,20 @@ def content_text(number, percentage, perc_precision=1, percentage_first=True):
     return text
 
 
+def get_class_weight(y):
+    unique, counts = np.unique(np.array(y), return_counts=True)
+    counts = counts / counts[0]
+    class_weights = {u: c for u, c in zip(unique, counts)}
+    return class_weights
+
+
 def export_dict(
     tree: DCTClass,
     feature_names=None,
     feature_value_formats=None,
+    class_names=None,
     class_colors=None,
+    class_weights=None,
     sample_header="Samples",
     bads_header="Events",
     percentage_first=True,
@@ -114,24 +124,35 @@ def export_dict(
     tree_ = tree.tree_
     master_list = []
     if feature_value_formats is None:
-        feature_value_formats = ["0.2f"] * clf.max_features_
-        if class_colors is None:
-            class_colors = [
-                "#198038",
-                "#fa4d56",
-                "#1192e8",
-                "#6929c4",
-                "#b28600",
-                "#009d9a",
-                "#9f1853",
-                "#002d9c",
-                "#ee538b",
-                "#570408",
-                "#005d5d",
-                "#8a3800",
-                "#a56eff",
-            ]
-        class_equal_color = "#fff"
+        feature_value_formats = ["0.2f"] * tree.max_features_
+    if class_colors is None:
+        class_colors = [
+            "#198038",
+            "#fa4d56",
+            "#1192e8",
+            "#6929c4",
+            "#b28600",
+            "#009d9a",
+            "#9f1853",
+            "#002d9c",
+            "#ee538b",
+            "#570408",
+            "#005d5d",
+            "#8a3800",
+            "#a56eff",
+        ]
+    class_equal_color = "#fff"
+    if class_names is None:
+        class_names = [str(i) for i in range(int(tree_.n_classes))]
+    classes = [
+        {"id": i, "name": c, "color": class_colors[i]}
+        for i, c in enumerate(class_names)
+    ]
+    tmp_class_weights = {k: 1 for k in range(int(tree_.n_classes[0]))}
+    if class_weights is not None:
+        for k, class_weight in class_weights.items():
+            tmp_class_weights[k] = class_weight
+    class_weights = list(tmp_class_weights.values())
 
     # i is the element in the tree_ to create a dict for
     def recur(i, master_dict, path="", depth=0):
@@ -142,6 +163,7 @@ def export_dict(
         threshold = float(tree_.threshold[i])
         samples = tree_.n_node_samples[i]
         value = tree_.value[i].tolist()[0]
+        value = [v / cw for v, cw in zip(value, class_weights)]
         value_perc = value / samples
 
         hasChildren = feature_idx != _tree.TREE_UNDEFINED
@@ -212,7 +234,7 @@ def export_dict(
 
     recur(0, master_list, "Root")
 
-    return master_list
+    return master_list, classes
 
 
 def get_node_data(data, node_id):
@@ -222,12 +244,33 @@ def get_node_data(data, node_id):
     return node_data
 
 
-def get_formatted_node_data(node_data):
-    st.write(f"**Node ID:** {node_data['node_id']}")
-    st.write(f"**Path:** {node_data['path']}")
-    for content in node_data["contents"]:
-        left, right = content.split(":")
-        st.write(f"**{left}:** {right}")
+def get_summary_streamlit(node_data, classes, spacing=[3, 2]):
+    col1, col2 = st.columns(spacing)
+
+    with col1:
+        st.header("Node data")
+        st.write(
+            f"""**Node ID:**  
+                 {node_data['node_id']}"""
+        )
+        st.write(
+            f"""**Path:**  
+                 {node_data['path']}"""
+        )
+        for content in node_data["contents"]:
+            left, right = content.split(":")
+            st.write(
+                f"""**{left}:**  
+                     {right}"""
+            )
+
+    with col2:
+        st.header("Classes")
+        for c in classes:
+            st.markdown(
+                f"""<span style="background-color: {c['color']}; padding:5px;">{c['name']}</span>""",
+                unsafe_allow_html=True,
+            )
 
 
 def binary_tree(
@@ -259,33 +302,6 @@ def binary_tree(
         expanded (bool, optional): Whether completely expanded at the start. Defaults to True.
         show_node_ids (bool, optional): Whether node ids are shown at the left of every single node. Defaults to True.
         style (_type_, optional): Styling info: font style, color, spacing. Defaults to default_style.
-
-    Returns:
-        int: Selected node id
-
-    Example Usage:
-        Tree with dummy data and default style.
-
-        node_id = binary_tree(
-            data=[
-                {
-                    "node_id": 0,
-                    "left": {"id": 1, "condition": "Condition Left"},
-                    "right": {"id": 2, "condition": "Condition Right"},
-                    "contents": ["Line 1", "Line 2", "Line 3"],
-                    "color": "#1f8430",
-                },
-                {
-                    "node_id": 1,
-                    "left": {"id": 1, "condition": "Condition Left"},
-                    "right": {"id": 2, "condition": "Condition Right"},
-                    "contents": ["Line 1", "Line 2", "Line 3"],
-                    "color": "#1f8430",
-                },
-            ],
-            key="Decision Tree",
-            expanded=True,
-            show_node_ids=True,
             default_style={
                 "max_height": "2400px",
                 "padding_quantum": "5px",
@@ -304,7 +320,30 @@ def binary_tree(
                 "button_hover_color": "#2d6186",
                 "transition_time": "0.7s",
             }
+    Returns:
+        int: Selected node id
+
+    Example Usage:
+        Tree with dummy data and default style.
+
+        clf = tree.DecisionTreeClassifier(random_state=42)
+        iris = load_iris()
+        clf = clf.fit(
+            iris.data,
+            iris.target,
         )
+        data, classes = export_dict(
+            clf, feature_names=iris.feature_names, class_names=iris.target_names
+        )
+
+        st.markdown("---")
+        node_id = binary_tree(
+            data, key="dct_sample_dataset", show_node_ids=True, style={"node_size": "200px"}
+        )
+        node_data = get_node_data(data, node_id)
+        get_summary_streamlit(node_data, classes)
+        st.markdown("---")
+
 
     """
 
@@ -321,7 +360,7 @@ def binary_tree(
         "font_family": "arial",
         "font_size": "0.7em",
         "text_color": "#333",
-        "text_hover_color": "#000",
+        "text_hover_color": "#111",
         "button_color": "#70b4c2",
         "button_hover_color": "#2d6186",
         "transition_time": "0.7s",
@@ -347,7 +386,6 @@ def binary_tree(
 
 
 if _DEBUG:
-    import streamlit as st
     from sklearn.datasets import load_iris
     from sklearn import tree
 
@@ -359,13 +397,17 @@ if _DEBUG:
         iris.data,
         iris.target,
     )
-    data = export_dict(clf, feature_names=iris.feature_names)
+    data, classes = export_dict(
+        clf,
+        feature_names=iris.feature_names,
+        class_names=iris.target_names,
+        class_weights={0: 1, 1: 10},
+    )
 
     st.markdown("---")
     node_id = binary_tree(
         data, key="dct_sample_dataset", show_node_ids=True, style={"node_size": "200px"}
     )
     node_data = get_node_data(data, node_id)
-    st.header("Node data:")
-    get_formatted_node_data(node_data)
+    get_summary_streamlit(node_data, classes)
     st.markdown("---")
