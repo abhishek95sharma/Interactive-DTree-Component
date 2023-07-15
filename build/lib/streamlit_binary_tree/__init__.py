@@ -7,7 +7,7 @@ import streamlit.components.v1 as components
 from sklearn.tree import _tree
 from sklearn.tree._classes import DecisionTreeClassifier as DCTClass
 
-_RELEASE = False
+_RELEASE = True
 _DEBUG = True
 _NAME = "streamlit_binary_tree"
 
