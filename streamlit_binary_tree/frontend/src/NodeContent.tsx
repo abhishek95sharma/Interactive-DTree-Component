@@ -24,7 +24,7 @@ const NodeContent = ({ id }: NodeId) => {
             }}
             style={{ backgroundColor: node_data!.color }}
           >
-            {node_data!.node_id}
+            <div>{node_data!.node_id}</div>
           </div>
         )}
         <div className="node-content-right">

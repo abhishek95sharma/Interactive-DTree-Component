@@ -27,6 +27,9 @@ interface styleType {
   padding_quantum: string
   text_color: string
   text_hover_color: string
+  text_outline_alpha: string
+  text_outline_color: string
+  text_outline_color_mix: string
   transition_time: string
 }
 
@@ -39,6 +42,7 @@ const invertColor = (hex: string) => {
     hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
   }
   if (hex.length !== 6) {
+    console.log("dfs", hex)
     throw new Error("Invalid HEX color.")
   }
   // invert color components
@@ -49,6 +53,26 @@ const invertColor = (hex: string) => {
   return "#" + padZero(r, 2) + padZero(g, 2) + padZero(b, 2)
 }
 
+const colorToRGB = (hex: string) => {
+  if (hex.indexOf("#") === 0) {
+    hex = hex.slice(1)
+  }
+  // convert 3-digit hex to 6-digits.
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
+  }
+  if (hex.length !== 6) {
+    throw new Error("Invalid Alpha-HEX color.")
+  }
+  // break color components
+  var r = parseInt(hex.slice(0, 2), 16),
+    g = parseInt(hex.slice(2, 4), 16),
+    b = parseInt(hex.slice(4, 6), 16)
+  // pad each with zeros and return
+  var rgb = `${r}, ${g}, ${b}`
+  return rgb
+}
+
 const padZero = (str: string, len: number) => {
   len = len || 2
   var zeros = new Array(len).join("0")
@@ -57,6 +81,10 @@ const padZero = (str: string, len: number) => {
 
 const setStyle = (originalStyle: styleType, theme: any) => {
   const style = { ...originalStyle }
+  style.text_outline_color_mix = `rgba(${colorToRGB(
+    style.text_outline_color
+  )}, ${style.text_outline_alpha})`
+
   if (theme.base === "dark") {
     style.button_color = invertColor(style.button_color)
     style.button_hover_color = invertColor(style.button_hover_color)
@@ -67,6 +95,10 @@ const setStyle = (originalStyle: styleType, theme: any) => {
     style.node_hover_color = invertColor(style.node_hover_color)
     style.text_color = invertColor(style.text_color)
     style.text_hover_color = invertColor(style.text_hover_color)
+    style.text_outline_color = invertColor(style.text_outline_color)
+    style.text_outline_color_mix = `rgba(${colorToRGB(
+      style.text_outline_color
+    )}, ${style.text_outline_alpha})`
   }
   Object.entries(style).forEach(([key, value]) => {
     key = `--${key.replaceAll("_", "-")}`
@@ -109,7 +141,7 @@ const Tree = (props: ComponentProps) => {
     const canvas = await html2canvas(document.querySelector(".tree")!, {
       width: useWidth,
       windowWidth: useWidth,
-      scale: 2,
+      scale: 4,
     })
     const dataURL = canvas.toDataURL("image/jpg")
     downloadjs(dataURL, `${key}.jpg`, "image/jpg")
@@ -125,7 +157,7 @@ const Tree = (props: ComponentProps) => {
       <div className="tree" ref={treeRef}>
         <ul className="rootNode">
           <li>
-            <Node id={0} />
+            <Node id={0} depth={0} />
           </li>
         </ul>
       </div>

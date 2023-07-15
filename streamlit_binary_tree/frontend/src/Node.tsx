@@ -21,16 +21,17 @@ export interface NodeObject {
 
 export interface NodeId {
   id: number
+  depth: number
 }
 
-const Node = ({ id }: NodeId) => {
+const Node = ({ id, depth }: NodeId) => {
   const args = useContext(ArgsContext)
   const data: NodeObject[] = args.data
+  const expanded = depth < args.expanded_depth
+
   const node_data = data.find((a) => a.node_id === id)
   const [childrenVisible, setChildrenVisible] = useState(
-    node_data!.childrenVisible != null
-      ? node_data!.childrenVisible
-      : args.expanded
+    node_data!.childrenVisible != null ? node_data!.childrenVisible : expanded
   )
 
   node_data!.childrenVisible = childrenVisible
@@ -53,7 +54,7 @@ const Node = ({ id }: NodeId) => {
 
   return (
     <>
-      <NodeContent id={id} />
+      <NodeContent id={id} depth={depth} />
       {hasChildren && (
         <div
           className="child-button"
@@ -66,11 +67,19 @@ const Node = ({ id }: NodeId) => {
         <ul style={childrenVisibleStyle}>
           <li>
             <EdgeContent id={id} isLeft={true} key={id} />
-            <Node id={node_data!.left.id} key={node_data!.left.id} />
+            <Node
+              id={node_data!.left.id}
+              key={node_data!.left.id}
+              depth={depth + 1}
+            />
           </li>
           <li>
             <EdgeContent id={id} isLeft={false} key={id} />
-            <Node id={node_data!.right.id} key={node_data!.right.id} />
+            <Node
+              id={node_data!.right.id}
+              key={node_data!.right.id}
+              depth={depth + 1}
+            />
           </li>
         </ul>
       )}

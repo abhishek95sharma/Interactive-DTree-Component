@@ -18,6 +18,7 @@
   --node-border-color: #ccc;
   --text-color: #333;
   --text-hover-color: #000;
+  --text-outline-color-mix: rgba(0, 0, 0, 0.5);
   --button-color: rgb(185, 145, 145);
   --button-hover-color: rgb(150, 0, 0);
   --transition-time: 0.75s;
@@ -33,6 +34,7 @@
   --node-inner-padding: var(--padding-quantum) var(--padding-quantum);
   --node-left-item-width: calc(4 * var(--padding-quantum));
   --node-text-color: var(--text-color);
+  --node-text-outline-color: var(--text-outline-color-mix);
   --node-font-size: var(--font-size);
   --node-width: var(--node-size);
 
@@ -67,6 +69,7 @@ $node-border-radius: var(--node-border-radius);
 $node-inner-padding: var(--node-inner-padding);
 $node-left-item-width: var(--node-left-item-width);
 $node-text-color: var(--node-text-color);
+$node-text-outline-color: var(--node-text-outline-color);
 $node-font-size: var(--node-font-size);
 $node-width: var(--node-width);
 
@@ -288,6 +291,18 @@ right connector from last child*/
   -ms-border-radius: $node-border-radius 0px 0px $node-border-radius;
   -o-border-radius: $node-border-radius 0px 0px $node-border-radius;
 }
+
+.tree li .node .node-content-left div {
+  background-color: $node-text-outline-color;
+  padding: 3px;
+  // opacity: 0.5;
+  border-radius: $padding-quantum;
+  -webkit-border-radius: $padding-quantum;
+  -moz-border-radius: $padding-quantum;
+  -ms-border-radius: $padding-quantum;
+  -o-border-radius: $padding-quantum;
+}
+
 .tree li .node .node-content-right {
   margin: 0;
   width: 100%;

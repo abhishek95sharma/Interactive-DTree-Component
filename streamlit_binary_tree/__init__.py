@@ -7,7 +7,7 @@ import streamlit.components.v1 as components
 from sklearn.tree import _tree
 from sklearn.tree._classes import DecisionTreeClassifier as DCTClass
 
-_RELEASE = True
+_RELEASE = False
 _DEBUG = True
 _NAME = "streamlit_binary_tree"
 
@@ -41,7 +41,7 @@ def human_format(n, precision=0, large_value_precision=None):
 
 
 def content_text(number, percentage, perc_precision=1, percentage_first=True):
-    if type(number) == list:
+    if type(number) == list or type(number) == np.ndarray:
         num_texts = []
         perc_texts = []
         for n, p in zip(number, percentage):
@@ -64,9 +64,32 @@ def content_text(number, percentage, perc_precision=1, percentage_first=True):
     return text
 
 
-def get_class_weight(y):
+def combine_hex_values(colors, weight):
+    colors = [c[1:] for c in colors]
+    colors = ["".join([char * 2 for char in c]) if len(c) == 3 else c for c in colors]
+    if weight <= 0:
+        weights = [-weight, 1 + weight, 0]
+    else:
+        weights = [0, 1 - weight, weight]
+    total_weight = sum(weights)
+    red = int(
+        sum([int(k[0:2], 16) * v for k, v in zip(colors, weights)]) / total_weight
+    )
+    green = int(
+        sum([int(k[2:4], 16) * v for k, v in zip(colors, weights)]) / total_weight
+    )
+    blue = int(
+        sum([int(k[4:6], 16) * v for k, v in zip(colors, weights)]) / total_weight
+    )
+    zpad = lambda x: x if len(x) == 2 else "0" + x
+    color = zpad(hex(red)[2:]) + zpad(hex(green)[2:]) + zpad(hex(blue)[2:])
+    color = "#" + color
+    return color
+
+
+def get_balanced_class_weight(y):
     unique, counts = np.unique(np.array(y), return_counts=True)
-    counts = counts / counts[0]
+    counts = 1 / counts
     class_weights = {u: c for u, c in zip(unique, counts)}
     return class_weights
 
@@ -79,10 +102,10 @@ def export_dict(
     class_colors=None,
     class_weights=None,
     sample_header="Samples",
-    bads_header="Events",
-    percentage_first=True,
+    event_header="Events",
     sample_perc_precision=1,
-    bads_perc_precision=1,
+    event_perc_precision=1,
+    percentage_first=True,
     binary_formatting=False,
 ):
     """Export a decision tree in dict format.
@@ -154,6 +177,18 @@ def export_dict(
             tmp_class_weights[k] = class_weight
     class_weights = list(tmp_class_weights.values())
 
+    value_weighted_percs = np.transpose(tree_.value) / sum(np.transpose(tree_.value))
+    root_bad_value = value_weighted_percs[1][0][0]
+    max_bad_value = max(value_weighted_percs[1][0])
+    min_bad_value = min(value_weighted_percs[1][0])
+    value_weighted_percs = [
+        v.flatten().tolist() for v in np.transpose(value_weighted_percs)
+    ]
+
+    value_percs = [v / cw for v, cw in zip(np.transpose(tree_.value), class_weights)]
+    value_percs /= sum(value_percs)
+    value_percs = [v.flatten().tolist() for v in np.transpose(value_percs)]
+
     # i is the element in the tree_ to create a dict for
     def recur(i, master_dict, path="", depth=0):
         if i == _tree.TREE_LEAF:
@@ -162,9 +197,25 @@ def export_dict(
         feature_idx = int(tree_.feature[i])
         threshold = float(tree_.threshold[i])
         samples = tree_.n_node_samples[i]
-        value = tree_.value[i].tolist()[0]
-        value = [v / cw for v, cw in zip(value, class_weights)]
-        value_perc = value / samples
+        value = value_percs[i]
+        value_weighted = value_weighted_percs[i]
+
+        if binary_formatting:
+            bad_value = value_weighted[1]
+            if bad_value >= root_bad_value:
+                ratio = (bad_value - root_bad_value) / (max_bad_value - root_bad_value)
+            else:
+                ratio = (bad_value - root_bad_value) / (root_bad_value - min_bad_value)
+
+            color = combine_hex_values(
+                [class_colors[0], class_equal_color, class_colors[1]],
+                ratio,
+            )
+        else:
+            if np.argmax(value) == np.argmin(value):
+                color = class_equal_color
+            else:
+                color = class_colors[np.argmax(value)]
 
         hasChildren = feature_idx != _tree.TREE_UNDEFINED
         left_idx = int(tree_.children_left[i])
@@ -176,17 +227,26 @@ def export_dict(
             perc_precision=sample_perc_precision,
             percentage_first=percentage_first,
         )
-        bads_value = content_text(
-            value,
-            value_perc,
-            perc_precision=bads_perc_precision,
-            percentage_first=percentage_first,
-        )
 
-        if np.argmax(value) == np.argmin(value):
-            color = class_equal_color
+        if binary_formatting:
+            bads_value = content_text(
+                value[1] * samples,
+                value[1],
+                perc_precision=event_perc_precision,
+                percentage_first=percentage_first,
+            )
         else:
-            color = class_colors[np.argmax(value)]
+            bads_value = content_text(
+                [v * samples for v in value],
+                value,
+                perc_precision=event_perc_precision,
+                percentage_first=percentage_first,
+            )
+
+        event_header_val = event_header
+
+        if binary_formatting and event_header_val == "Events":
+            event_header_val = dataset.target_names[1]
 
         tree_dict = {
             "node_id": i,
@@ -195,7 +255,7 @@ def export_dict(
             "value": value,
             "contents": [
                 f"{sample_header}: {samples_value}",
-                f"{bads_header}: {bads_value}",
+                f"{event_header_val}: {bads_value}",
             ],
             "path": path,
             "color": color,
@@ -276,7 +336,7 @@ def get_summary_streamlit(node_data, classes, spacing=[3, 2]):
 def binary_tree(
     data: List[dict],
     key: str = None,
-    expanded: bool = True,
+    expanded_depth: int = 3,
     show_node_ids: bool = True,
     style: dict = None,
 ):
@@ -302,65 +362,113 @@ def binary_tree(
         expanded (bool, optional): Whether completely expanded at the start. Defaults to True.
         show_node_ids (bool, optional): Whether node ids are shown at the left of every single node. Defaults to True.
         style (_type_, optional): Styling info: font style, color, spacing. Defaults to default_style.
-            default_style={
-                "max_height": "2400px",
-                "padding_quantum": "5px",
-                "edge_size": "150px",
-                "edge_color": "#c2c9cc",
-                "edge_hover_color": "#adc2cc",
-                "node_size": "100px",
-                "node_border_color": "#c2c9cc",
-                "node_color": "#fff",
-                "node_hover_color": "#f0faff",
-                "font_family": "arial",
-                "font_size": "0.7em",
-                "text_color": "#333",
-                "text_hover_color": "#000",
-                "button_color": "#70b4c2",
-                "button_hover_color": "#2d6186",
-                "transition_time": "0.7s",
-            }
+        default_style = {
+            "max_height": "2400px",
+            "padding_quantum": "5px",
+            "edge_size": "100px",
+            "edge_color": "#c2c9cc",
+            "edge_hover_color": "#adc2cc",
+            "node_size": "120px",
+            "node_border_color": "#c2c9cc",
+            "node_color": "#fff",
+            "node_hover_color": "#d5e6f0",
+            "font_family": "arial",
+            "font_size": "0.7em",
+            "text_color": "#333",
+            "text_hover_color": "#111",
+            "text_outline_color": "#fff",
+            "text_outline_alpha": "0.4",
+            "button_color": "#70b4c2",
+            "button_hover_color": "#2d6186",
+            "transition_time": "0.7s",
+        }
+
     Returns:
         int: Selected node id
 
     Example Usage:
-        Tree with dummy data and default style.
+        Tree with dummy data and changed style.
 
-        clf = tree.DecisionTreeClassifier(random_state=42)
-        iris = load_iris()
-        clf = clf.fit(
-            iris.data,
-            iris.target,
+        from sklearn.datasets import load_iris, load_breast_cancer
+        from sklearn import tree
+
+        st.set_page_config(layout="wide")
+
+        # Breast Cancer dataset (Binary Classification)
+        clf = tree.DecisionTreeClassifier(
+            class_weight="balanced", max_depth=4, random_state=42
         )
+        dataset = load_breast_cancer()
+        clf = clf.fit(
+            dataset.data,
+            dataset.target,
+        )
+        get_balanced_class_weight(dataset.target)
         data, classes = export_dict(
-            clf, feature_names=iris.feature_names, class_names=iris.target_names
+            clf,
+            feature_names=list(dataset.feature_names),
+            class_names=list(dataset.target_names),
+            class_weights=get_balanced_class_weight(dataset.target),
+            binary_formatting=True,
         )
 
         st.markdown("---")
         node_id = binary_tree(
-            data, key="dct_sample_dataset", show_node_ids=True, style={"node_size": "200px"}
+            data,
+            key="dct_sample_breast_cancer_dataset",
+            show_node_ids=True,
+            style={"node_size": "120px"},
         )
         node_data = get_node_data(data, node_id)
         get_summary_streamlit(node_data, classes)
         st.markdown("---")
 
+        # Iris dataset (Multi-class Classification)
+        clf = tree.DecisionTreeClassifier(
+            class_weight="balanced", max_depth=4, random_state=42
+        )
+        dataset = load_iris()
+        clf = clf.fit(
+            dataset.data,
+            dataset.target,
+        )
+        get_balanced_class_weight(dataset.target)
+        data, classes = export_dict(
+            clf,
+            feature_names=list(dataset.feature_names),
+            class_names=list(dataset.target_names),
+            class_weights=get_balanced_class_weight(dataset.target),
+        )
+
+        st.markdown("---")
+        node_id = binary_tree(
+            data,
+            key="dct_sample_iris_dataset",
+            show_node_ids=True,
+            style={"node_size": "120px"},
+        )
+        node_data = get_node_data(data, node_id)
+        get_summary_streamlit(node_data, classes)
+        st.markdown("---")
 
     """
 
     default_style = {
         "max_height": "2400px",
         "padding_quantum": "5px",
-        "edge_size": "150px",
+        "edge_size": "100px",
         "edge_color": "#c2c9cc",
         "edge_hover_color": "#adc2cc",
-        "node_size": "100px",
+        "node_size": "120px",
         "node_border_color": "#c2c9cc",
         "node_color": "#fff",
-        "node_hover_color": "#f0faff",
+        "node_hover_color": "#d5e6f0",
         "font_family": "arial",
         "font_size": "0.7em",
         "text_color": "#333",
         "text_hover_color": "#111",
+        "text_outline_color": "#fff",
+        "text_outline_alpha": "0.4",
         "button_color": "#70b4c2",
         "button_hover_color": "#2d6186",
         "transition_time": "0.7s",
@@ -377,7 +485,7 @@ def binary_tree(
         data=data,
         key=key,
         default=0,
-        expanded=expanded,
+        expanded_depth=expanded_depth,
         show_node_ids=show_node_ids,
         style=style,
     )
@@ -386,27 +494,63 @@ def binary_tree(
 
 
 if _DEBUG:
-    from sklearn.datasets import load_iris
+    from sklearn.datasets import load_iris, load_breast_cancer
     from sklearn import tree
 
     st.set_page_config(layout="wide")
 
-    clf = tree.DecisionTreeClassifier(class_weight={0: 1, 1: 10}, random_state=42)
-    iris = load_iris()
-    clf = clf.fit(
-        iris.data,
-        iris.target,
+    # Breast Cancer dataset (Binary Classification)
+    clf = tree.DecisionTreeClassifier(
+        class_weight="balanced", max_depth=4, random_state=42
     )
+    dataset = load_breast_cancer()
+    clf = clf.fit(
+        dataset.data,
+        dataset.target,
+    )
+    get_balanced_class_weight(dataset.target)
     data, classes = export_dict(
         clf,
-        feature_names=iris.feature_names,
-        class_names=iris.target_names,
-        class_weights={0: 1, 1: 10},
+        feature_names=list(dataset.feature_names),
+        class_names=list(dataset.target_names),
+        class_weights=get_balanced_class_weight(dataset.target),
+        binary_formatting=True,
     )
 
     st.markdown("---")
     node_id = binary_tree(
-        data, key="dct_sample_dataset", show_node_ids=True, style={"node_size": "200px"}
+        data,
+        key="dct_sample_breast_cancer_dataset",
+        show_node_ids=True,
+        style={"node_size": "120px"},
+    )
+    node_data = get_node_data(data, node_id)
+    get_summary_streamlit(node_data, classes)
+    st.markdown("---")
+
+    # Iris dataset (Multi-class Classification)
+    clf = tree.DecisionTreeClassifier(
+        class_weight="balanced", max_depth=4, random_state=42
+    )
+    dataset = load_iris()
+    clf = clf.fit(
+        dataset.data,
+        dataset.target,
+    )
+    get_balanced_class_weight(dataset.target)
+    data, classes = export_dict(
+        clf,
+        feature_names=list(dataset.feature_names),
+        class_names=list(dataset.target_names),
+        class_weights=get_balanced_class_weight(dataset.target),
+    )
+
+    st.markdown("---")
+    node_id = binary_tree(
+        data,
+        key="dct_sample_iris_dataset",
+        show_node_ids=True,
+        style={"node_size": "120px"},
     )
     node_data = get_node_data(data, node_id)
     get_summary_streamlit(node_data, classes)
