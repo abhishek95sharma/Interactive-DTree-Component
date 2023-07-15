@@ -15,7 +15,7 @@ const EdgeContent = ({ id, isLeft }: EdgeType) => {
   return (
     <>
       <div className="edge-content">
-        {isLeft ? node_data!.left.condition : node_data!.left.condition}
+        {isLeft ? node_data!.left.condition : node_data!.right.condition}
       </div>
     </>
   )

@@ -1,5 +1,7 @@
+from collections import defaultdict
 import os
 import math
+import pandas as pd
 import numpy as np
 from typing import List
 import streamlit as st
@@ -10,6 +12,9 @@ from sklearn.tree._classes import DecisionTreeClassifier as DCTClass
 _RELEASE = True
 _DEBUG = True
 _NAME = "streamlit_binary_tree"
+
+CATEGORICAL_INDICATOR = " !@#$ "
+BINARY_INDICATOR = " $#@! "
 
 # If release, use build or use dev
 if _RELEASE:
@@ -152,7 +157,7 @@ def export_dict(
     Args:
         tree (decision tree classifier): The decision tree to be exported
         feature_names (list of strings, optional): Names of each of the features. Defaults to None.
-        feature_value_formats (list of strings, optional): Formats for each feature value (used in Connectors). Defaults to "0.2f".
+        feature_value_formats (defaultDict, optional): Formats for each feature value (used in Connectors). Defaults to "0.2f".
         class_names (list of strings, optional): Names of each of the classes. Defaults to None.
         class_colors (list of strings, optional): Hex of each of the class colors. Defaults to default class colors.
             class_colors = [
@@ -217,7 +222,7 @@ def export_dict(
     tree_ = tree.tree_
     master_list = []
     if feature_value_formats is None:
-        feature_value_formats = ["0.2f"] * tree.max_features_
+        feature_value_formats = defaultdict(lambda: "0.2f")
     if class_colors is None:
         class_colors = [
             "#198038",
@@ -332,18 +337,36 @@ def export_dict(
         }
 
         if hasChildren:
-            feature = feature_names[feature_idx] if feature_names else str(feature_idx)
-            format = feature_value_formats[feature_idx]
+            feature = (
+                feature_names[feature_idx]
+                if feature_names is not None
+                else str(feature_idx)
+            )
+            format = feature_value_formats[feature]
             tree_dict["feature"] = feature
             tree_dict["threshold"] = threshold
 
+            if BINARY_INDICATOR in feature:
+                left_condition = f"{feature.split(BINARY_INDICATOR)[1]} is FALSE"
+            elif CATEGORICAL_INDICATOR in feature:
+                left_condition = f"{feature.split(CATEGORICAL_INDICATOR)[0]} IS NOT {feature.split(CATEGORICAL_INDICATOR)[1]}"
+            else:
+                left_condition = f"{feature} ≤ {threshold:{format}}"
+
+            if BINARY_INDICATOR in feature:
+                right_condition = f"{feature.split(BINARY_INDICATOR)[1]} is TRUE"
+            elif CATEGORICAL_INDICATOR in feature:
+                right_condition = f"{feature.split(CATEGORICAL_INDICATOR)[0]} IS {feature.split(CATEGORICAL_INDICATOR)[1]}"
+            else:
+                right_condition = f"{feature} > {threshold:{format}}"
+
             tree_dict["left"] = {
                 "id": left_idx,
-                "condition": f"{feature} ≤ {threshold:{format}}",
+                "condition": left_condition,
             }
             tree_dict["right"] = {
                 "id": right_idx,
-                "condition": f"{feature} > {threshold:{format}}",
+                "condition": right_condition,
             }
 
         master_list.append(tree_dict)
@@ -419,7 +442,7 @@ def get_summary_streamlit(node_data, classes, spacing=[3, 2]):
             )
 
 
-def binary_tree(
+def binary_tree_component(
     data: List[dict],
     key: str = None,
     expanded_depth: int = 3,
@@ -579,18 +602,20 @@ def binary_tree(
     return component_value
 
 
-def binary_tree_complete(
+def binary_tree(
     key,
-    clf,
+    data_set,
+    features,
+    target,
+    clf_params=None,
+    feature_value_formats=None,
+    categorise_binaries=True,
+    class_names=None,
+    class_colors=None,
     show_node_ids=True,
     expanded_depth=3,
     style=None,
     spacing=[3, 2],
-    feature_names=None,
-    feature_value_formats=None,
-    class_names=None,
-    class_colors=None,
-    class_weights=None,
     sample_header="Samples",
     event_header="Events",
     sample_perc_precision=1,
@@ -598,11 +623,33 @@ def binary_tree_complete(
     percentage_first=True,
     binary_formatting=False,
 ):
-    """_summary_
+    """Creates an interactive binary tree.
 
     Args:
         key (str): Name of tree
-        clf (decision tree classifier): The decision tree to be shown
+        data_set (DataFrame): The data to make the decision tree on
+        features (list of str): Features of the tree
+        target (str): Target of the tree
+        clf_params (dict): Parameters for the classifier
+        feature_value_formats (defaultDict, optional): Formats for each feature value (used in Connectors). Defaults to "0.2f".
+        categorise_binaries (bool, optional): Whether to treat binary features as categories. Defaults to True.
+        class_names (list of strings, optional): Names of each of the classes. Defaults to None.
+        class_colors (list of strings, optional): Hex of each of the class colors. Defaults to default class colors.
+            class_colors = [
+                "#198038",
+                "#fa4d56",
+                "#1192e8",
+                "#6929c4",
+                "#b28600",
+                "#009d9a",
+                "#9f1853",
+                "#002d9c",
+                "#ee538b",
+                "#570408",
+                "#005d5d",
+                "#8a3800",
+                "#a56eff",
+            ]
         expanded_depth (int, optional): Initial expanded depth of the tree. Defaults to 3.
         show_node_ids (bool, optional): Whether node ids are shown at the left of every single node. Defaults to True.
         style (_type_, optional): Styling info: font style, color, spacing. Defaults to default_style.
@@ -627,25 +674,6 @@ def binary_tree_complete(
                 "transition_time": "0.7s",
             }
         spacing (list of 2 ints): Input to streamlit column spacing for summary. Defaults to [3,2]
-        feature_names (list of strings, optional): Names of each of the features. Defaults to None.
-        feature_value_formats (list of strings, optional): Formats for each feature value (used in Connectors). Defaults to "0.2f".
-        class_names (list of strings, optional): Names of each of the classes. Defaults to None.
-        class_colors (list of strings, optional): Hex of each of the class colors. Defaults to default class colors.
-            class_colors = [
-                "#198038",
-                "#fa4d56",
-                "#1192e8",
-                "#6929c4",
-                "#b28600",
-                "#009d9a",
-                "#9f1853",
-                "#002d9c",
-                "#ee538b",
-                "#570408",
-                "#005d5d",
-                "#8a3800",
-                "#a56eff",
-            ]
         class_weights (dict of floats, optional): Dict with weights of the classes. Defaults to 1.
         sample_header (str, optional): Header for samples line item. Defaults to "Samples".
         event_header (str, optional): Header for events line item. Defaults to "Events".
@@ -654,10 +682,120 @@ def binary_tree_complete(
         percentage_first: Whether to show % first. Defaults to True.
         binary_formatting: Improves formatting of dict for binary classification.
             Blends outputted colors and shows only class 1 in line items.
+
+    Examples:
+        Examples with dummy data
+
+        # Breast Cancer dataset (Binary Classification)
+
+        dataset_breast_cancer = load_breast_cancer()
+        features_breast_cancer = list(dataset_breast_cancer.feature_names)
+        target_breast_cancer = "target"
+        classes_breast_cancer = list(dataset_breast_cancer.target_names)
+        df_breast_cancer = pd.DataFrame(dataset_breast_cancer.data)
+        df_breast_cancer.columns = features_breast_cancer
+        df_breast_cancer[target_breast_cancer] = list(dataset_breast_cancer.target)
+
+        binary_tree(
+            "breast_cancer",
+            df_breast_cancer,
+            features_breast_cancer,
+            target_breast_cancer,
+            show_node_ids=True,
+            style={"node_size": "120px", "edge_size": "150px"},
+            class_names=list(dataset_breast_cancer.target_names),
+            binary_formatting=True,
+        )
+
+        # Breast Cancer dataset with categorical features (Binary Classification)
+
+        dataset_breast_cancer2 = load_breast_cancer()
+        features_breast_cancer2 = list(dataset_breast_cancer2.feature_names)
+        target_breast_cancer2 = "target"
+        classes_breast_cancer2 = list(dataset_breast_cancer2.target_names)
+        df_breast_cancer2 = pd.DataFrame(dataset_breast_cancer2.data)
+        df_breast_cancer2.columns = features_breast_cancer2
+        df_breast_cancer2[target_breast_cancer2] = list(dataset_breast_cancer2.target)
+        df_breast_cancer2["mean compactness band"] = pd.cut(
+            df_breast_cancer2["mean compactness"],
+            [-np.Inf, 0.2, 0.5, 0.8, np.Inf],
+            labels=["<0.2", "0.2-0.5", "0.5-0.8", ">0.8"],
+        )
+        df_breast_cancer2["mean area flag"] = (df_breast_cancer2["mean area"] > 1000).map(
+            {True: 1, False: 0}
+        )
+        features_breast_cancer2 = [
+            "mean compactness band",
+            "mean area flag",
+        ]
+
+        binary_tree(
+            "breast_cancer2",
+            df_breast_cancer2,
+            features_breast_cancer2,
+            target_breast_cancer2,
+            show_node_ids=True,
+            style={"node_size": "120px", "edge_size": "150px"},
+            class_names=list(dataset_breast_cancer2.target_names),
+            binary_formatting=True,
+        )
+
+        # Iris dataset (Multi-class Classification)
+
+        dataset_iris = load_iris()
+        features_iris = list(dataset_iris.feature_names)
+        target_iris = "target"
+        classes_iris = list(dataset_iris.target_names)
+        df_iris = pd.DataFrame(dataset_iris.data)
+        df_iris.columns = features_iris
+        df_iris[target_iris] = list(dataset_iris.target)
+
+        binary_tree(
+            "iris",
+            df_iris,
+            features_iris,
+            target_iris,
+            show_node_ids=True,
+            style={"node_size": "120px"},
+            class_names=list(dataset_iris.target_names),
+        )
+
     """
+    if clf_params is None:
+        clf_params = {
+            "class_weight": "balanced",
+            "max_depth": 4,
+            "min_samples_leaf": 0.005,
+            "min_impurity_decrease": 1e-4,
+            "random_state": 42,
+        }
+
+    clf = tree.DecisionTreeClassifier()
+    clf = clf.set_params(**clf_params)
+
+    X = data_set[features]
+    y = data_set[target]
+
+    if categorise_binaries:
+        for col in X.columns:
+            if set(X[col].unique()) == {0, 1}:
+                X.rename(columns={col: f"{BINARY_INDICATOR}{col}"}, inplace=True)
+
+    X = pd.get_dummies(X, prefix_sep=CATEGORICAL_INDICATOR)
+    X.columns = [str(col) for col in X.columns]
+
+    features = X.columns
+
+    clf = clf.fit(X, y)
+
+    if clf_params["class_weight"] == "balanced":
+        class_weights = get_balanced_class_weight(y)
+    else:
+        class_weights = clf_params["class_weight"]
+
     data, classes = export_dict(
         clf,
-        feature_names=feature_names,
+        feature_names=features,
         feature_value_formats=feature_value_formats,
         class_names=class_names,
         class_colors=class_colors,
@@ -671,7 +809,7 @@ def binary_tree_complete(
     )
 
     st.markdown("---")
-    node_id = binary_tree(
+    node_id = binary_tree_component(
         data,
         key=key,
         show_node_ids=show_node_ids,
@@ -683,7 +821,8 @@ def binary_tree_complete(
     st.markdown("---")
 
 
-# Debug code to help develop
+# ------------------------------------------------------------------------------------
+# Debugging is developing
 if _DEBUG:
     from sklearn.datasets import load_iris, load_breast_cancer
     from sklearn import tree
@@ -691,40 +830,73 @@ if _DEBUG:
     st.set_page_config(layout="wide")
 
     # Breast Cancer dataset (Binary Classification)
-    clf_breast_cancer = tree.DecisionTreeClassifier(
-        class_weight="balanced", max_depth=4, random_state=42
-    )
     dataset_breast_cancer = load_breast_cancer()
-    clf_breast_cancer = clf_breast_cancer.fit(
-        dataset_breast_cancer.data,
-        dataset_breast_cancer.target,
-    )
-    binary_tree_complete(
-        "test",
-        clf_breast_cancer,
+    features_breast_cancer = list(dataset_breast_cancer.feature_names)
+    target_breast_cancer = "target"
+    classes_breast_cancer = list(dataset_breast_cancer.target_names)
+    df_breast_cancer = pd.DataFrame(dataset_breast_cancer.data)
+    df_breast_cancer.columns = features_breast_cancer
+    df_breast_cancer[target_breast_cancer] = list(dataset_breast_cancer.target)
+
+    binary_tree(
+        "breast_cancer",
+        df_breast_cancer,
+        features_breast_cancer,
+        target_breast_cancer,
         show_node_ids=True,
-        style={"node_size": "120px"},
-        feature_names=list(dataset_breast_cancer.feature_names),
+        style={"node_size": "120px", "edge_size": "150px"},
         class_names=list(dataset_breast_cancer.target_names),
-        class_weights=get_balanced_class_weight(dataset_breast_cancer.target),
+        binary_formatting=True,
+    )
+
+    # Breast Cancer dataset with categorical features (Binary Classification)
+    dataset_breast_cancer2 = load_breast_cancer()
+    features_breast_cancer2 = list(dataset_breast_cancer2.feature_names)
+    target_breast_cancer2 = "target"
+    classes_breast_cancer2 = list(dataset_breast_cancer2.target_names)
+    df_breast_cancer2 = pd.DataFrame(dataset_breast_cancer2.data)
+    df_breast_cancer2.columns = features_breast_cancer2
+    df_breast_cancer2[target_breast_cancer2] = list(dataset_breast_cancer2.target)
+    df_breast_cancer2["mean compactness band"] = pd.cut(
+        df_breast_cancer2["mean compactness"],
+        [-np.Inf, 0.2, 0.5, 0.8, np.Inf],
+        labels=["<0.2", "0.2-0.5", "0.5-0.8", ">0.8"],
+    )
+    df_breast_cancer2["mean area flag"] = (df_breast_cancer2["mean area"] > 1000).map(
+        {True: 1, False: 0}
+    )
+    features_breast_cancer2 = [
+        "mean compactness band",
+        "mean area flag",
+    ]
+
+    binary_tree(
+        "breast_cancer2",
+        df_breast_cancer2,
+        features_breast_cancer2,
+        target_breast_cancer2,
+        show_node_ids=True,
+        style={"node_size": "120px", "edge_size": "150px"},
+        class_names=list(dataset_breast_cancer2.target_names),
         binary_formatting=True,
     )
 
     # Iris dataset (Multi-class Classification)
-    clf_iris = tree.DecisionTreeClassifier(
-        class_weight="balanced", max_depth=4, random_state=42
-    )
+
     dataset_iris = load_iris()
-    clf_iris = clf_iris.fit(
-        dataset_iris.data,
-        dataset_iris.target,
-    )
-    binary_tree_complete(
-        "test2",
-        clf_iris,
+    features_iris = list(dataset_iris.feature_names)
+    target_iris = "target"
+    classes_iris = list(dataset_iris.target_names)
+    df_iris = pd.DataFrame(dataset_iris.data)
+    df_iris.columns = features_iris
+    df_iris[target_iris] = list(dataset_iris.target)
+
+    binary_tree(
+        "iris",
+        df_iris,
+        features_iris,
+        target_iris,
         show_node_ids=True,
         style={"node_size": "120px"},
-        feature_names=list(dataset_iris.feature_names),
         class_names=list(dataset_iris.target_names),
-        class_weights=get_balanced_class_weight(dataset_iris.target),
     )
