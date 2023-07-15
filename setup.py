@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="streamlit-binary-tree",
-    version="0.2.2",
+    version="0.2.3",
     author="Abhishek Sharma",
     author_email="abhishek1995sharma@gmail.com",
     description="Interactive Binary Tree as a Streamlit component",

@@ -150,34 +150,34 @@ def export_dict(
     """Export a decision tree in dict format.
 
     Args:
-    decision_tree (decision tree classifier): The decision tree to be exported
-    feature_names (list of strings, optional): Names of each of the features. Defaults to None.
-    feature_value_formats (list of strings, optional): Formats for each feature value (used in Connectors). Defaults to "0.2f".
-    class_names (list of strings, optional): Names of each of the classes. Defaults to None.
-    class_colors (list of strings, optional): Hex of each of the class colors. Defaults to default class colors.
-        class_colors = [
-            "#198038",
-            "#fa4d56",
-            "#1192e8",
-            "#6929c4",
-            "#b28600",
-            "#009d9a",
-            "#9f1853",
-            "#002d9c",
-            "#ee538b",
-            "#570408",
-            "#005d5d",
-            "#8a3800",
-            "#a56eff",
-        ]
-    class_weights (dict of floats, optional): Dict with weights of the classes. Defaults to 1.
-    sample_header (str, optional): Header for samples line item. Defaults to "Samples".
-    event_header (str, optional): Header for events line item. Defaults to "Events".
-    sample_perc_precision (int, optional): Precision of % of samples line item. Defaults to 1.
-    event_perc_precision (int, optional): Precision of % of events line item. Defaults to 1.
-    percentage_first: Whether to show % first. Defaults to True.
-    binary_formatting: Improves formatting of dict for binary classification.
-        Blends outputted colors and shows only class 1 in line items.
+        tree (decision tree classifier): The decision tree to be exported
+        feature_names (list of strings, optional): Names of each of the features. Defaults to None.
+        feature_value_formats (list of strings, optional): Formats for each feature value (used in Connectors). Defaults to "0.2f".
+        class_names (list of strings, optional): Names of each of the classes. Defaults to None.
+        class_colors (list of strings, optional): Hex of each of the class colors. Defaults to default class colors.
+            class_colors = [
+                "#198038",
+                "#fa4d56",
+                "#1192e8",
+                "#6929c4",
+                "#b28600",
+                "#009d9a",
+                "#9f1853",
+                "#002d9c",
+                "#ee538b",
+                "#570408",
+                "#005d5d",
+                "#8a3800",
+                "#a56eff",
+            ]
+        class_weights (dict of floats, optional): Dict with weights of the classes. Defaults to 1.
+        sample_header (str, optional): Header for samples line item. Defaults to "Samples".
+        event_header (str, optional): Header for events line item. Defaults to "Events".
+        sample_perc_precision (int, optional): Precision of % of samples line item. Defaults to 1.
+        event_perc_precision (int, optional): Precision of % of events line item. Defaults to 1.
+        percentage_first: Whether to show % first. Defaults to True.
+        binary_formatting: Improves formatting of dict for binary classification.
+            Blends outputted colors and shows only class 1 in line items.
 
     Returns (list):
         list of dictionaries of the format
@@ -390,9 +390,6 @@ def get_summary_streamlit(node_data, classes, spacing=[3, 2]):
         node_data (dict): Node data of selected node
         classes (int): id of node
         spacing (list of 2 ints): Input to streamlit column spacing. Defaults to [3,2]
-
-    Returns:
-        None
     """
     col1, col2 = st.columns(spacing)
 
@@ -588,6 +585,7 @@ def binary_tree_complete(
     show_node_ids=True,
     expanded_depth=3,
     style=None,
+    spacing=[3, 2],
     feature_names=None,
     feature_value_formats=None,
     class_names=None,
@@ -600,6 +598,63 @@ def binary_tree_complete(
     percentage_first=True,
     binary_formatting=False,
 ):
+    """_summary_
+
+    Args:
+        key (str): Name of tree
+        clf (decision tree classifier): The decision tree to be shown
+        expanded_depth (int, optional): Initial expanded depth of the tree. Defaults to 3.
+        show_node_ids (bool, optional): Whether node ids are shown at the left of every single node. Defaults to True.
+        style (_type_, optional): Styling info: font style, color, spacing. Defaults to default_style.
+            default_style = {
+                "max_height": "2400px",
+                "padding_quantum": "5px",
+                "edge_size": "100px",
+                "edge_color": "#c2c9cc",
+                "edge_hover_color": "#adc2cc",
+                "node_size": "120px",
+                "node_border_color": "#c2c9cc",
+                "node_color": "#fff",
+                "node_hover_color": "#d5e6f0",
+                "font_family": '"Helvetica Neue",Helvetica,Arial,sans-serif',
+                "font_size": "0.7em",
+                "text_color": "#111",
+                "text_hover_color": "#000",
+                "text_outline_color": "#fff",
+                "text_outline_alpha": "0.4",
+                "button_color": "#70b4c2",
+                "button_hover_color": "#2d6186",
+                "transition_time": "0.7s",
+            }
+        spacing (list of 2 ints): Input to streamlit column spacing for summary. Defaults to [3,2]
+        feature_names (list of strings, optional): Names of each of the features. Defaults to None.
+        feature_value_formats (list of strings, optional): Formats for each feature value (used in Connectors). Defaults to "0.2f".
+        class_names (list of strings, optional): Names of each of the classes. Defaults to None.
+        class_colors (list of strings, optional): Hex of each of the class colors. Defaults to default class colors.
+            class_colors = [
+                "#198038",
+                "#fa4d56",
+                "#1192e8",
+                "#6929c4",
+                "#b28600",
+                "#009d9a",
+                "#9f1853",
+                "#002d9c",
+                "#ee538b",
+                "#570408",
+                "#005d5d",
+                "#8a3800",
+                "#a56eff",
+            ]
+        class_weights (dict of floats, optional): Dict with weights of the classes. Defaults to 1.
+        sample_header (str, optional): Header for samples line item. Defaults to "Samples".
+        event_header (str, optional): Header for events line item. Defaults to "Events".
+        sample_perc_precision (int, optional): Precision of % of samples line item. Defaults to 1.
+        event_perc_precision (int, optional): Precision of % of events line item. Defaults to 1.
+        percentage_first: Whether to show % first. Defaults to True.
+        binary_formatting: Improves formatting of dict for binary classification.
+            Blends outputted colors and shows only class 1 in line items.
+    """
     data, classes = export_dict(
         clf,
         feature_names=feature_names,
@@ -624,7 +679,7 @@ def binary_tree_complete(
         style=style,
     )
     node_data = get_node_data(data, node_id)
-    get_summary_streamlit(node_data, classes)
+    get_summary_streamlit(node_data, classes, spacing=spacing)
     st.markdown("---")
 
 
